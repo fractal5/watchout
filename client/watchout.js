@@ -62,7 +62,7 @@ var hero = d3.select('svg').append('rect').data([{x: gameOptions.width / 2,
 .call(onDragDrop(dragmove));
 
 setInterval(function() {
-  var enemies = d3.selectAll('circle');
+  // var enemies = d3.selectAll('circle');
   enemies.
     transition().duration(1000)
   .attr('cx', function(d){
@@ -77,34 +77,60 @@ setInterval(function() {
 
 // Check for collisions
 setInterval(function(){
-  var heroX = hero.attr('x');
-  var heroY = hero.attr('y');
-  var heroWidth = hero.attr('width');
-  var heroHeight = hero.attr('height');
 
-  var enemies = d3.selectAll('circle');
+  // var enemies = d3.selectAll('circle');
   var collision = false;
 
-  console.log('collision set to false');
+  // console.log('collision set to false');
+  //console.log("heroX: ", heroX, " heroY: ", heroY);
+  //console.log(hero.getAttribute('x'));
 
 
   enemies.each(function(d, i){
-    var enemyMinX = d.cx - d.r;
-    var enemyMaxXX = d.cx + d.r;
-    var enemyMinY = d.cy - d.r;
-    var enemyMaxYY = d.cy + d.r; 
-    var xIntersection = (enemyMinX > heroX && enemyMinX < heroX + heroWidth) || 
-                        (enemyMaxXX > heroX && enemyMaxXX < heroX + heroWidth);
-    var yIntersection = (enemyMinY > heroY && enemyMinY < heroY + heroHeight) || 
-                        (enemyMaxYY > heroY && enemyMaxYY < heroY + heroHeight);
+    // var enemyMinX = d.cx - d.r;
+    // var enemyMinX = this.getAttribute('cx') - d.r; 
+    // var enemyMaxXX = this.getAttribute('cx') + d.r;
+    // var enemyMinY = this.getAttribute('cy') - d.r;
+    // var enemyMaxYY = this.getAttribute('cy') + d.r; 
+    // var xIntersection = (enemyMinX > heroX && enemyMinX < heroX + heroWidth) || 
+    //                     (enemyMaxXX > heroX && enemyMaxXX < heroX + heroWidth);
+    // var yIntersection = (enemyMinY > heroY && enemyMinY < heroY + heroHeight) || 
+    //                     (enemyMaxYY > heroY && enemyMaxYY < heroY + heroHeight);
 
-    if(xIntersection && yIntersection){
+    // console.log("enemyMinX: ", enemyMinX, " enemyMaxXX: ", enemyMaxXX, 
+    //             " enemyMinY: ", enemyMinY, " enemyMaxYY: ", enemyMaxYY,
+    //             " xIntersection: ", xIntersection, " yIntersection: ", yIntersection);
+
+
+    // Try just calculating distance between the center of the hero and enemy
+    var heroX = Number(hero.attr('x'));
+    var heroY = Number(hero.attr('y'));
+    var heroWidth = Number(hero.attr('width'));
+    var heroHeight = Number(hero.attr('height'));
+    var heroCenterX = heroX + (heroWidth / 2);
+    var heroCenterY = heroY + (heroHeight / 2);
+    var enemyCenterX = this.getAttribute('cx');
+    var enemyCenterY = this.getAttribute('cy');
+
+
+    var distance = Math.sqrt(Math.pow(enemyCenterX - heroCenterX, 2) 
+                             + Math.pow(enemyCenterY - heroCenterY, 2));
+
+    console.log("heroX: ", heroX, " heroY: ", heroY, 
+                " heroWidth: ", heroWidth);
+    console.log("heroCenterX: ", heroCenterX, " heroCenterY ", heroCenterY, 
+                " enemyCenterX: ", enemyCenterX, " enemyCenterY: ", enemyCenterY,
+                " distance: ", distance);
+
+    // if(xIntersection && yIntersection){
+    if (distance < 10) {
       // We had a collision
-      collision = true;  
+      collision = true; 
+      console.log("collision"); 
     } 
   });
 
-  console.log(collision);
+  // console.log("collision set to: ", collision);
   // Update scores for this iteration
   if (collision) {
     if(gameStats.score > gameStats.bestScore) {
@@ -117,5 +143,5 @@ setInterval(function(){
   $('.high span').html(gameStats.bestScore);
   $('.current span').html(gameStats.score);
   
-}, 30);
+}, 10);
 
