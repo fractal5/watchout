@@ -2,8 +2,7 @@
 var gameOptions = {
   width: window.innerWidth,
   height: window.innerHeight,
-  nEnemies: 2,
-  padding: 20 // ???
+  nEnemies: 10
 };
 
 var gameStats = {
@@ -18,7 +17,7 @@ var generateEnemies = function(numEnemies){
     enemyData.push(
     {cx: Math.random() * gameOptions.width,
      cy: Math.random() * gameOptions.height,
-     r: 10
+     r: 40
     });
   }
   return enemyData;
@@ -28,15 +27,15 @@ var gameBoard = d3.select('.container').append('svg')
   .style('width', gameOptions.width)
   .style('height', gameOptions.height)
 
-var enemies = gameBoard.selectAll('circle').data(generateEnemies(10)).enter().append('circle')
-  .attr('r', function(d) { return d.r; })
-  .attr('cx', function(d){
-    return d.cx;
-  })
-  .attr('cy', function(d){
-    return d.cy;
-  })
-  .style('fill', 'black');
+// Try making enemies with shuriken images
+var enemies = gameBoard.selectAll('image').data(generateEnemies(gameOptions.nEnemies)).enter()
+  .append('svg:image')
+  .attr('class', 'shuriken')
+  .attr('x', function(d) { return d.cx; })
+  .attr('y', function(d) { return d.cy; })
+  .attr('width', function(d) { return d.r; })
+  .attr('height', function(d) { return d.r; })
+  .attr('xlink:href', '9204-shuriken-clipart.png');
 
 // Define drag callbacks for our hero!
 var onDragDrop = function (dragHandler, dropHandler) {
@@ -62,14 +61,13 @@ var hero = d3.select('svg').append('rect').data([{x: gameOptions.width / 2,
 .call(onDragDrop(dragmove));
 
 setInterval(function() {
-  // var enemies = d3.selectAll('circle');
   enemies.
-    transition().duration(1000)
-  .attr('cx', function(d){
+    transition().duration(1500)
+  .attr('x', function(d){
     d.cx = Math.random() * gameOptions.width;
     return d.cx;
   })
-  .attr('cy', function(d){
+  .attr('y', function(d){
     d.cy = Math.random() * gameOptions.height;
     return d.cy;
   });
@@ -77,31 +75,8 @@ setInterval(function() {
 
 // Check for collisions
 setInterval(function(){
-
-  // var enemies = d3.selectAll('circle');
   var collision = false;
-
-  // console.log('collision set to false');
-  //console.log("heroX: ", heroX, " heroY: ", heroY);
-  //console.log(hero.getAttribute('x'));
-
-
   enemies.each(function(d, i){
-    // var enemyMinX = d.cx - d.r;
-    // var enemyMinX = this.getAttribute('cx') - d.r; 
-    // var enemyMaxXX = this.getAttribute('cx') + d.r;
-    // var enemyMinY = this.getAttribute('cy') - d.r;
-    // var enemyMaxYY = this.getAttribute('cy') + d.r; 
-    // var xIntersection = (enemyMinX > heroX && enemyMinX < heroX + heroWidth) || 
-    //                     (enemyMaxXX > heroX && enemyMaxXX < heroX + heroWidth);
-    // var yIntersection = (enemyMinY > heroY && enemyMinY < heroY + heroHeight) || 
-    //                     (enemyMaxYY > heroY && enemyMaxYY < heroY + heroHeight);
-
-    // console.log("enemyMinX: ", enemyMinX, " enemyMaxXX: ", enemyMaxXX, 
-    //             " enemyMinY: ", enemyMinY, " enemyMaxYY: ", enemyMaxYY,
-    //             " xIntersection: ", xIntersection, " yIntersection: ", yIntersection);
-
-
     // Try just calculating distance between the center of the hero and enemy
     var heroX = Number(hero.attr('x'));
     var heroY = Number(hero.attr('y'));
@@ -109,28 +84,18 @@ setInterval(function(){
     var heroHeight = Number(hero.attr('height'));
     var heroCenterX = heroX + (heroWidth / 2);
     var heroCenterY = heroY + (heroHeight / 2);
-    var enemyCenterX = this.getAttribute('cx');
-    var enemyCenterY = this.getAttribute('cy');
-
+    // Enemy Shurikens
+    var enemyCenterX = this.getAttribute('x');
+    var enemyCenterY = this.getAttribute('y');
 
     var distance = Math.sqrt(Math.pow(enemyCenterX - heroCenterX, 2) 
                              + Math.pow(enemyCenterY - heroCenterY, 2));
-
-    console.log("heroX: ", heroX, " heroY: ", heroY, 
-                " heroWidth: ", heroWidth);
-    console.log("heroCenterX: ", heroCenterX, " heroCenterY ", heroCenterY, 
-                " enemyCenterX: ", enemyCenterX, " enemyCenterY: ", enemyCenterY,
-                " distance: ", distance);
-
-    // if(xIntersection && yIntersection){
-    if (distance < 10) {
+    if (distance < 30) {
       // We had a collision
       collision = true; 
-      console.log("collision"); 
     } 
   });
 
-  // console.log("collision set to: ", collision);
   // Update scores for this iteration
   if (collision) {
     if(gameStats.score > gameStats.bestScore) {
@@ -143,5 +108,5 @@ setInterval(function(){
   $('.high span').html(gameStats.bestScore);
   $('.current span').html(gameStats.score);
   
-}, 10);
+}, 30);
 

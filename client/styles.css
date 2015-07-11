@@ -1,7 +1,34 @@
 .container{
   border: 3px solid black;
+  position: relative;
   }/* your beautiful css styling goes here! */
 
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
+
+.shuriken {
+/*  position: absolute;
+  -webkit-animation:spin 4s linear infinite;
+  -moz-animation:spin 4s linear infinite;
+  animation:spin 4s linear infinite;
+*/
+
+-webkit-animation: spin .6s steps(20) infinite;
+}
+
+/*@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+*/
+@-webkit-keyframes spin { 
+  from {
+    transform: rotate(0deg);
+    transform-origin: 50% 50%;
+  }
+  to {
+    transform: rotate(360deg);
+    transform-origin: 50% 50%;
+  }
+}
+
 
