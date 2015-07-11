@@ -1,11 +1,7 @@
-// start slingin' some d3 here.
-
-var w = window.innerWidth
-var h = window.innerHeight
 
 var gameOptions = {
-  width: window.innerWidth* 3 / 4,
-  height: window.innerHeight * 3 / 4,
+  width: window.innerWidth,
+  height: window.innerHeight,
   nEnemies: 2,
   padding: 20 // ???
 };
@@ -16,19 +12,29 @@ var gameStats = {
   collisions: 0
 };
 
-
+var generateEnemies = function(numEnemies){
+  var enemyData = [];
+  for(var i = 0; i<numEnemies; i++){
+    enemyData.push(
+    {cx: Math.random() * gameOptions.width,
+     cy: Math.random() * gameOptions.height,
+     r: 10
+    });
+  }
+  return enemyData;
+};
 
 var gameBoard = d3.select('.container').append('svg')
   .style('width', gameOptions.width)
   .style('height', gameOptions.height)
 
-var enemies = gameBoard.selectAll('circle').data(d3.range(2)).enter().append('circle')
-  .attr('r', 10)
-  .attr('cx', function(){
-    return Math.random() * gameOptions.width
+var enemies = gameBoard.selectAll('circle').data(generateEnemies(10)).enter().append('circle')
+  .attr('r', function(d) { return d.r; })
+  .attr('cx', function(d){
+    return d.cx;
   })
-  .attr('cy', function(){
-    return Math.random() * gameOptions.height
+  .attr('cy', function(d){
+    return d.cy;
   })
   .style('fill', 'black');
 
@@ -46,8 +52,6 @@ var dragmove = function (d) {
   .attr("y", d.y = d3.event.y);
 };
 
-
-
 var hero = d3.select('svg').append('rect').data([{x: gameOptions.width / 2, 
   y: gameOptions.height / 2 }])
   .attr('width', 20)
@@ -57,23 +61,61 @@ var hero = d3.select('svg').append('rect').data([{x: gameOptions.width / 2,
 .style('fill', 'orange')
 .call(onDragDrop(dragmove));
 
-
-
 setInterval(function() {
   var enemies = d3.selectAll('circle');
-  // console.log(enemies);
-
   enemies.
     transition().duration(1000)
   .attr('cx', function(d){
-    return Math.random() * gameOptions.width
+    d.cx = Math.random() * gameOptions.width;
+    return d.cx;
   })
-  .attr('cy', function(){
-    return Math.random() * gameOptions.height
+  .attr('cy', function(d){
+    d.cy = Math.random() * gameOptions.height;
+    return d.cy;
   });
-  //d3.selectAll('circle') {
-    //console.log("circles selected");
-  //}
-  
-  
 }, 1000);
+
+// Check for collisions
+setInterval(function(){
+  var heroX = hero.attr('x');
+  var heroY = hero.attr('y');
+  var heroWidth = hero.attr('width');
+  var heroHeight = hero.attr('height');
+
+  var enemies = d3.selectAll('circle');
+  var collision = false;
+
+  console.log('collision set to false');
+
+
+  enemies.each(function(d, i){
+    var enemyMinX = d.cx - d.r;
+    var enemyMaxXX = d.cx + d.r;
+    var enemyMinY = d.cy - d.r;
+    var enemyMaxYY = d.cy + d.r; 
+    var xIntersection = (enemyMinX > heroX && enemyMinX < heroX + heroWidth) || 
+                        (enemyMaxXX > heroX && enemyMaxXX < heroX + heroWidth);
+    var yIntersection = (enemyMinY > heroY && enemyMinY < heroY + heroHeight) || 
+                        (enemyMaxYY > heroY && enemyMaxYY < heroY + heroHeight);
+
+    if(xIntersection && yIntersection){
+      // We had a collision
+      collision = true;  
+    } 
+  });
+
+  console.log(collision);
+  // Update scores for this iteration
+  if (collision) {
+    if(gameStats.score > gameStats.bestScore) {
+      gameStats.bestScore = gameStats.score;
+    }
+    gameStats.score = 0;
+  } else {
+    gameStats.score++; 
+  }
+  $('.high span').html(gameStats.bestScore);
+  $('.current span').html(gameStats.score);
+  
+}, 30);
+
